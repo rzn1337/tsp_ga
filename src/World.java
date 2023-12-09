@@ -13,7 +13,7 @@ public class World extends JPanel {
 
     private World() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
-        setBackground(Color.BLACK);
+        setBackground(Color.PINK);
         this.population = new TSPPopulation(TSPUtils.CITIES, 9000);
         this.generation = new AtomicInteger(0);
         final Timer timer = new Timer(5, (ActionEvent e) -> {
@@ -27,7 +27,7 @@ public class World extends JPanel {
     public void paintComponent(final Graphics graphics) {
         super.paintComponent(graphics);
         final Graphics2D g = (Graphics2D) graphics;
-        g.setColor(Color.CYAN);
+        g.setColor(Color.BLACK);
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g.drawString("gen : " +this.generation.incrementAndGet(), 350, 15);
         g.drawString("pop size : " +this.population.getPopulation().size(), 150, 15);
