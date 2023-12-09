@@ -1,3 +1,5 @@
+package tsp;
+
 import java.util.Objects;
 
 import static java.lang.Math.pow;
@@ -19,11 +21,11 @@ public class TSPGene {
         return "(" + this.x + ", " + this.y+ ")";
     }
 
-    int getX() {
+    public int getX() {
         return this.x;
     }
 
-    int getY() {
+    public int getY() {
         return this.y;
     }
 

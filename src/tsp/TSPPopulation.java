@@ -1,3 +1,8 @@
+package tsp;
+
+import tsp.TSPChromosome;
+import tsp.TSPGene;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
