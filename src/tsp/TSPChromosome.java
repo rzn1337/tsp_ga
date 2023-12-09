@@ -105,3 +105,63 @@ public class TSPChromosome {
 
 
 }
+
+/*
+package tsp;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+public class TSPChromosome {
+
+    private final List<TSPGene> chromosome;
+    private final TSPGraph graph; // New graph instance to store distances
+
+    public double getDistance() {
+        return graph.calculateTotalDistance(); // Using TSPGraph's method
+    }
+
+    private TSPChromosome(final List<TSPGene> chromosome, TSPGraph graph) {
+        this.chromosome = Collections.unmodifiableList(chromosome);
+        this.graph = graph;
+    }
+
+    static TSPChromosome create(final TSPGene[] points) {
+        final List<TSPGene> genes = Arrays.asList(Arrays.copyOf(points, points.length));
+        Collections.shuffle(genes);
+        return new TSPChromosome(genes, new TSPGraph(points)); // Initialize TSPGraph with genes
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        for (final TSPGene gene : this.chromosome) {
+            builder.append(gene.toString()).append((" : "));
+        }
+        return builder.toString();
+    }
+
+    List<TSPGene> getChromosome() {
+        return this.chromosome;
+    }
+
+    TSPChromosome[] crossOver(final TSPChromosome other) {
+        // Perform crossover using TSPGraph if necessary
+        // ...
+
+        // Placeholder example - return unchanged chromosomes
+        return new TSPChromosome[] { this, other };
+    }
+
+    TSPChromosome mutate() {
+        // Perform mutation using TSPGraph if necessary
+        // ...
+
+        // Placeholder example - return unchanged chromosome
+        return this;
+    }
+}
+
+ */
