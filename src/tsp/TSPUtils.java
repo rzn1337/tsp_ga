@@ -9,19 +9,19 @@ public class TSPUtils {
 
     private final static Random R = new Random(10000);
 
-    static final TSPGene[] CITIES = generateData(60);
+    // Assuming Graph is used for cities
+    static final Graph CITIES_GRAPH = generateData(60);
 
     private TSPUtils() {
         throw new RuntimeException("No!");
     }
 
-    private static TSPGene[] generateData(final int numDataPoints) {
-        final TSPGene[] data = new TSPGene[numDataPoints];
-        for(int i = 0; i < numDataPoints; i++) {
-            data[i] = new TSPGene(TSPUtils.randomIndex(World.WIDTH),
-                                  TSPUtils.randomIndex(World.HEIGHT));
+    private static Graph generateData(final int numDataPoints) {
+        final List<TSPGene> data = new ArrayList<>();
+        for (int i = 0; i < numDataPoints; i++) {
+            data.add(new TSPGene(randomIndex(World.WIDTH), randomIndex(World.HEIGHT)));
         }
-        return data;
+        return new Graph(data);
     }
 
     static int randomIndex(final int limit) {
@@ -34,14 +34,13 @@ public class TSPUtils {
         final int size = list.size();
         final int partitionIndex = 1 + TSPUtils.randomIndex(list.size());
         IntStream.range(0, size).forEach(i -> {
-            if(i < (size+1)/partitionIndex) {
+            if (i < (size + 1) / partitionIndex) {
                 first.add(list.get(i));
             } else {
                 second.add(list.get(i));
             }
         });
-        return (List<T>[]) new List[] {first, second};
+        return (List<T>[]) new List[]{first, second};
     }
-
-
 }
+

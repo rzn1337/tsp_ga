@@ -2,48 +2,45 @@ package tsp;
 
 import java.util.Objects;
 
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
-
 public class TSPGene {
-
     private final int x;
     private final int y;
 
-    TSPGene(final int x,
-            final int y) {
+    public TSPGene(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    @Override
-    public String toString() {
-        return "(" + this.x + ", " + this.y+ ")";
-    }
-
     public int getX() {
-        return this.x;
+        return x;
     }
 
     public int getY() {
-        return this.y;
-    }
-
-    double distance(final TSPGene other) {
-        return sqrt(pow(getX() - other.getX(), 2) + pow(getY() - other.getY(), 2));
+        return y;
     }
 
     @Override
-    public boolean equals(final Object o) {
+    public String toString() {
+        return "(" + x + ", " + y + ")";
+    }
+
+    // Additional methods for equality, hashCode, and distance calculation if needed
+
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final TSPGene gene = (TSPGene) o;
-        return this.x == gene.x &&
-                this.y == gene.y;
+        TSPGene tspGene = (TSPGene) o;
+        return x == tspGene.x && y == tspGene.y;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.x, this.y);
+        return Objects.hash(x, y);
     }
+
+    public double distance(TSPGene other) {
+        return Math.sqrt(Math.pow(getX() - other.getX(), 2) + Math.pow(getY() - other.getY(), 2));
+    }
+
 }

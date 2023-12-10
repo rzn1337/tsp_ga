@@ -1,139 +1,30 @@
 package tsp;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 public class TSPChromosome {
 
-    private final List<TSPGene> chromosome;
+    private final Graph graph;
+    private final ArrayList<TSPGene> chromosome;
     private final double distance;
 
     public double getDistance() {
         return this.distance;
     }
 
-    private TSPChromosome(final List<TSPGene> chromosome) {
-        this.chromosome = Collections.unmodifiableList(chromosome);
+    private TSPChromosome(final Graph graph, final ArrayList<TSPGene> chromosome) {
+        this.graph = graph;
+        this.chromosome = new ArrayList<>(chromosome);
         this.distance = calculateDistance();
     }
-
-    static TSPChromosome create(final TSPGene[] points) {
-        final List<TSPGene> genes = Arrays.asList(Arrays.copyOf(points, points.length));
-        Collections.shuffle(genes);
-        return new TSPChromosome(genes);
+    static TSPChromosome create(final Graph graph) {
+        ArrayList<TSPGene> nodes = new ArrayList<>(graph.getNodes());
+        Collections.shuffle(nodes);
+        return new TSPChromosome(graph, nodes);
     }
-
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder();
-        for(final TSPGene gene : this.chromosome) {
-            builder.append(gene.toString()).append((" : "));
-        }
-        return builder.toString();
-    }
-
-    List<TSPGene> getChromosome() {
-        return this.chromosome;
-    }
-
-    double calculateDistance() {
-        double total = 0.0f;
-        for(int i = 0; i < this.chromosome.size() - 1; i++) {
-            total += this.chromosome.get(i).distance(this.chromosome.get(i+1));
-        }
-        return total;
-    }
-
-    TSPChromosome[] crossOver(final TSPChromosome other) {
-
-        final List<TSPGene>[] myDNA = TSPUtils.split(this.chromosome);
-        final List<TSPGene>[] otherDNA = TSPUtils.split(other.getChromosome());
-
-        final List<TSPGene> firstCrossOver = new ArrayList<>(myDNA[0]);
-
-        for(TSPGene gene : otherDNA[0]) {
-            if(!firstCrossOver.contains(gene)) {
-                firstCrossOver.add(gene);
-            }
-        }
-
-        for(TSPGene gene : otherDNA[1]) {
-            if(!firstCrossOver.contains(gene)) {
-                firstCrossOver.add(gene);
-            }
-        }
-
-        final List<TSPGene> secondCrossOver = new ArrayList<>(otherDNA[1]);
-
-        for(TSPGene gene : myDNA[0]) {
-            if(!secondCrossOver.contains(gene)) {
-                secondCrossOver.add(gene);
-            }
-        }
-
-        for(TSPGene gene : myDNA[1]) {
-            if(!secondCrossOver.contains(gene)) {
-                secondCrossOver.add(gene);
-            }
-        }
-
-        if(firstCrossOver.size() != TSPUtils.CITIES.length ||
-           secondCrossOver.size() != TSPUtils.CITIES.length) {
-            throw new RuntimeException("oops!");
-        }
-
-        return new TSPChromosome[] {
-                new TSPChromosome(firstCrossOver),
-                new TSPChromosome(secondCrossOver)
-        };
-    }
-
-    TSPChromosome mutate() {
-        final List<TSPGene> copy = new ArrayList<>(this.chromosome);
-        int indexA = TSPUtils.randomIndex(copy.size());
-        int indexB = TSPUtils.randomIndex(copy.size());
-        while(indexA == indexB) {
-            indexA = TSPUtils.randomIndex(copy.size());
-            indexB = TSPUtils.randomIndex(copy.size());
-        }
-        Collections.swap(copy, indexA, indexB);
-        return new TSPChromosome(copy);
-    }
-
-
-}
-
-/*
-package tsp;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
-public class TSPChromosome {
-
-    private final List<TSPGene> chromosome;
-    private final TSPGraph graph; // New graph instance to store distances
-
-    public double getDistance() {
-        return graph.calculateTotalDistance(); // Using TSPGraph's method
-    }
-
-    private TSPChromosome(final List<TSPGene> chromosome, TSPGraph graph) {
-        this.chromosome = Collections.unmodifiableList(chromosome);
-        this.graph = graph;
-    }
-
-    static TSPChromosome create(final TSPGene[] points) {
-        final List<TSPGene> genes = Arrays.asList(Arrays.copyOf(points, points.length));
-        Collections.shuffle(genes);
-        return new TSPChromosome(genes, new TSPGraph(points)); // Initialize TSPGraph with genes
-    }
-
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -143,25 +34,85 @@ public class TSPChromosome {
         return builder.toString();
     }
 
-    List<TSPGene> getChromosome() {
+    ArrayList<TSPGene> getChromosome() {
         return this.chromosome;
     }
 
-    TSPChromosome[] crossOver(final TSPChromosome other) {
-        // Perform crossover using TSPGraph if necessary
-        // ...
-
-        // Placeholder example - return unchanged chromosomes
-        return new TSPChromosome[] { this, other };
+    double calculateDistance() {
+        double total = 0.0;
+        for (int i = 0; i < this.chromosome.size() - 1; i++) {
+            TSPGene currentGene = this.chromosome.get(i);
+            TSPGene nextGene = this.chromosome.get(i + 1);
+            total += this.graph.getDistance(currentGene, nextGene);
+        }
+        // Add distance from the last city back to the starting city
+        total += this.graph.getDistance(this.chromosome.get(chromosome.size() - 1), this.chromosome.get(0));
+        return total;
     }
+    TSPChromosome[] crossOver(final TSPChromosome other) {
+        Graph graph = this.graph;  // Assuming graph is a member variable in TSPChromosome
+        ArrayList<TSPGene> myNodes = this.chromosome;
+        ArrayList<TSPGene> otherNodes = other.getChromosome();
+
+        ArrayList<TSPGene> firstCrossOver = new ArrayList<>();
+        ArrayList<TSPGene> secondCrossOver = new ArrayList<>();
+
+        // Choose a random index to split the chromosomes
+        int splitIndex = new Random().nextInt(myNodes.size());
+
+        // Add nodes up to the split index
+        for (int i = 0; i < splitIndex; i++) {
+            firstCrossOver.add(myNodes.get(i));
+            secondCrossOver.add(otherNodes.get(i));
+        }
+
+        // Add remaining nodes in order of appearance in the other chromosome
+        for (TSPGene gene : otherNodes) {
+            if (!firstCrossOver.contains(gene)) {
+                firstCrossOver.add(gene);
+            }
+        }
+
+        for (TSPGene gene : myNodes) {
+            if (!secondCrossOver.contains(gene)) {
+                secondCrossOver.add(gene);
+            }
+        }
+
+        if (firstCrossOver.size() != graph.getNodes().size() || secondCrossOver.size() != graph.getNodes().size()) {
+            throw new RuntimeException("oops!");
+        }
+
+        return new TSPChromosome[]{
+                new TSPChromosome(graph, firstCrossOver),
+                new TSPChromosome(graph, secondCrossOver)
+        };
+    }
+
 
     TSPChromosome mutate() {
-        // Perform mutation using TSPGraph if necessary
-        // ...
+        Graph graph = this.graph;  // Assuming graph is a member variable in TSPChromosome
+        ArrayList<TSPGene> nodes = new ArrayList<>(this.chromosome);
 
-        // Placeholder example - return unchanged chromosome
-        return this;
+        int indexA = TSPUtils.randomIndex(nodes.size());
+        int indexB = TSPUtils.randomIndex(nodes.size());
+
+        // Ensure distinct indices
+        while (indexA == indexB) {
+            indexB = TSPUtils.randomIndex(nodes.size());
+        }
+
+        // Swap nodes in the chromosome
+        Collections.swap(nodes, indexA, indexB);
+
+        // Check if the mutation maintains a valid TSP route
+        if (nodes.size() != graph.getNodes().size()) {
+            throw new RuntimeException("oops!");
+        }
+
+        return new TSPChromosome(graph, nodes);
     }
+
 }
 
- */
+
